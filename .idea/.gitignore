@@ -1,0 +1,66 @@
+# Default ignored files
+/shelf/
+/workspace.xml
+.idea/
+!.idea/misc.xml
+!.idea/modules.xml
+*.iml
+
+### Java ###
+*.class
+*.jar
+*.war
+*.ear
+
+# Compiled class files
+target/
+bin/
+out/
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+
+# IDEs ###
+### IntelliJ IDEA ###
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# VS Code
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Maven ###
+dependency-reduced-pom.xml
+buildNumber.properties
+release.properties
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+
+# Spring Boot ###
+*.db
+*.h2.db
+*.mv.db
+*.trace.db
+
+# PostgreSQL (optional)
+pgdata/
+postgres-data/
+
+# Environment and secrets (optional)
+.env
+.env.*
+application-*.properties
+application-*.yml
