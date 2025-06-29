@@ -9,15 +9,19 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/tickets")
+@RequestMapping("/tickets")
 public class TicketController {
 
     @Autowired
     private TicketService ticketService;
 
+    @GetMapping
+    public ResponseEntity<String> ticketsHome() {
+        return ResponseEntity.ok("✅ Ticketing Service is up and running!");
+    }
+
     @PostMapping("/create")
     public ResponseEntity<String> createTicket(@RequestParam String vehicleNumber) {
-//        return ResponseEntity.ok(ticketService.createTicket(vehicleNumber));
         return ResponseEntity.ok("Ticketing system is working"+ vehicleNumber);
     }
 

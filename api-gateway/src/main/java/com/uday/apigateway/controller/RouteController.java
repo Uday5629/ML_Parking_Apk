@@ -6,6 +6,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.Collections;
+import java.util.Enumeration;
 
 @RestController
 @RequestMapping("/api")
@@ -17,17 +19,53 @@ public class RouteController {
     private final String PARKING_SERVICE = "http://PARKING-LOT-SERVICE";
     private final String TICKETING_SERVICE = "http://TICKETING-SERVICE";
 
-    @GetMapping("/parking/**")
-    public ResponseEntity<?> forwardToParking(HttpServletRequest request) {
-        String path = request.getRequestURI().replace("/api", "");
-        String url = PARKING_SERVICE + path;
-        return restTemplate.exchange(url, HttpMethod.GET, null, String.class);
+    @RequestMapping(value = "/parking/**", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE})
+    public ResponseEntity<?> forwardToParking(HttpServletRequest request, @RequestBody(required = false) String body) {
+        return forward(request, body, PARKING_SERVICE);
     }
 
-    @GetMapping("/tickets/**")
-    public ResponseEntity<?> forwardToTickets(HttpServletRequest request) {
-        String path = request.getRequestURI().replace("/api", "");
-        String url = TICKETING_SERVICE + path;
-        return restTemplate.exchange(url, HttpMethod.GET, null, String.class);
+    @RequestMapping(value = "/tickets/**", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE})
+    public ResponseEntity<?> forwardToTickets(HttpServletRequest request, @RequestBody(required = false) String body) {
+        return forward(request, body, TICKETING_SERVICE);
     }
+
+    private ResponseEntity<?> forward(HttpServletRequest request, String body, String serviceUrl) {
+        try {
+            String path = request.getRequestURI().replace("/api", "");
+            String queryString = request.getQueryString();
+            String fullUrl = serviceUrl + path + (queryString != null ? "?" + queryString : "");
+
+            HttpHeaders headers = new HttpHeaders();
+            Enumeration<String> headerNames = request.getHeaderNames();
+            while (headerNames.hasMoreElements()) {
+                String headerName = headerNames.nextElement();
+                headers.put(headerName, Collections.list(request.getHeaders(headerName)));
+            }
+
+            HttpMethod method = HttpMethod.valueOf(request.getMethod());
+            HttpEntity<String> entity = new HttpEntity<>(body, headers);
+// 🔍 Log outgoing request
+            System.out.println("🔁 Forwarding Request:");
+            System.out.println("➡️ Method: " + method);
+            System.out.println("➡️ URL: " + fullUrl);
+            System.out.println("➡️ Headers: " + headers);
+            System.out.println("➡️ Body: " + body);
+
+            ResponseEntity<String> response = restTemplate.exchange(fullUrl, method, entity, String.class);
+
+            // 🔍 Log response
+            System.out.println("✅ Response received:");
+            System.out.println("⬅️ Status: " + response.getStatusCode());
+            System.out.println("⬅️ Headers: " + response.getHeaders());
+            System.out.println("⬅️ Body: " + response.getBody());
+
+            return response;
+//            return restTemplate.exchange(fullUrl, method, entity, String.class);
+        } catch (Exception e) {
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Error forwarding request: " + e.getMessage());
+    }
+
+}
 }
