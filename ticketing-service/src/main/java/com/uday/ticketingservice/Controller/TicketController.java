@@ -22,7 +22,7 @@ public class TicketController {
 
     @PostMapping("/create")
     public ResponseEntity<String> createTicket(@RequestParam String vehicleNumber) {
-        return ResponseEntity.ok("Ticketing system is working"+ vehicleNumber);
+        return ResponseEntity.ok("Ticket generated for "+ vehicleNumber);
     }
 
     @PutMapping("/exit/{id}")
