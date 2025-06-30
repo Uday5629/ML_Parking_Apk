@@ -44,23 +44,8 @@ public class RouteController {
 
             HttpMethod method = HttpMethod.valueOf(request.getMethod());
             HttpEntity<String> entity = new HttpEntity<>(body, headers);
-// 🔍 Log outgoing request
-            System.out.println("🔁 Forwarding Request:");
-            System.out.println("➡️ Method: " + method);
-            System.out.println("➡️ URL: " + fullUrl);
-            System.out.println("➡️ Headers: " + headers);
-            System.out.println("➡️ Body: " + body);
 
-            ResponseEntity<String> response = restTemplate.exchange(fullUrl, method, entity, String.class);
-
-            // 🔍 Log response
-            System.out.println("✅ Response received:");
-            System.out.println("⬅️ Status: " + response.getStatusCode());
-            System.out.println("⬅️ Headers: " + response.getHeaders());
-            System.out.println("⬅️ Body: " + response.getBody());
-
-            return response;
-//            return restTemplate.exchange(fullUrl, method, entity, String.class);
+            return restTemplate.exchange(fullUrl, method, entity, String.class);
         } catch (Exception e) {
         e.printStackTrace();
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

@@ -17,7 +17,7 @@ public class TicketController {
 
     @GetMapping
     public ResponseEntity<String> ticketsHome() {
-        return ResponseEntity.ok("✅ Ticketing Service is up and running!");
+        return ResponseEntity.ok("Ticketing Service is up and running!");
     }
 
     @PostMapping("/create")
