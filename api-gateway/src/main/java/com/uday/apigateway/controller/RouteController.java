@@ -19,6 +19,12 @@ public class RouteController {
     private final String PARKING_SERVICE = "http://PARKING-LOT-SERVICE";
     private final String TICKETING_SERVICE = "http://TICKETING-SERVICE";
     private final String VEHICLE_SERVICE = "http://VEHICLE-SERVICE";
+    private final String PAYMENT_SERVICE = "http://PAYMENT-SERVICE";
+
+    @RequestMapping(value = "/payments/**", method = {RequestMethod.GET, RequestMethod.POST})
+    public ResponseEntity<?> forwardToPayments(HttpServletRequest request, @RequestBody(required = false) String body) {
+        return forward(request, body, PAYMENT_SERVICE);
+    }
 
     @RequestMapping(value = "/parking/**", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE})
     public ResponseEntity<?> forwardToParking(HttpServletRequest request, @RequestBody(required = false) String body) {
