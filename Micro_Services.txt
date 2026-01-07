@@ -1,0 +1,17 @@
+| Service                | Responsibilities                                             |
+| ---------------------- | ------------------------------------------------------------ |
+| `config-server`        | Centralized config (application.yml for all services)        |
+
+| `discovery-server`     | Eureka server (service registry)                             |
+
+| `api-gateway`          | Spring Cloud Gateway to route `/api/parking`, `/api/tickets` |
+
+| `parking-lot-service`  | Parking levels, spot allocation logic                        |
+
+| `ticketing-service`    | Create ticket, store entry/exit time                         |
+
+| `vehicle-service`      | Vehicle data — license, type, isDisabled                     |
+
+| `payment-service`      | Calculate and process payment for parking                    |
+
+| `notification-service` | Log or send alerts (e.g., entry/exit logs) — optional        |
