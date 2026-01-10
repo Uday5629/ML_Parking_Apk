@@ -1,0 +1,119 @@
+services:
+
+  db:
+    image: postgres:15
+    container_name: postgres-db
+    platform: linux/amd64
+    environment:
+      POSTGRES_DB: ticketing_service
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Uday@2003
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init-db-scripts:/docker-entrypoint-initdb.d
+
+  config-server:
+    build: ./config-server
+    container_name: config-server
+    ports:
+      - "8886:8886"
+
+  discovery-server:
+    build: ./discovery-server
+    container_name: discovery-server
+    ports:
+      - "8761:8761"
+    depends_on:
+      - config-server
+
+  api-gateway:
+    build: ./api-gateway
+    container_name: api-gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - discovery-server
+    environment:
+      - SPRING_APPLICATION_NAME=API-GATEWAY
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka
+      - EUREKA_INSTANCE_HOSTNAME=api-gateway
+      - EUREKA_INSTANCE_PREFER_IP_ADDRESS=false
+
+  parking-lot-service:
+    build: ./parking-lot-service
+    container_name: parking-lot-service
+    ports:
+      - "8084:8084"
+    depends_on:
+      - discovery-server
+      - db
+    environment:
+      - SPRING_APPLICATION_NAME=PARKING-LOT-SERVICE
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka
+      - EUREKA_INSTANCE_HOSTNAME=parking-lot-service
+      - EUREKA_INSTANCE_PREFER_IP_ADDRESS=false
+
+  ticketing-service:
+    build: ./ticketing-service
+    container_name: ticketing-service
+    ports:
+      - "8082:8082"
+    depends_on:
+      - discovery-server
+      - db
+    environment:
+      - SPRING_APPLICATION_NAME=TICKETING-SERVICE
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka
+      - EUREKA_INSTANCE_HOSTNAME=ticketing-service
+      - EUREKA_INSTANCE_PREFER_IP_ADDRESS=false
+
+  vehicle-service:
+    build: ./vehicle-service
+    container_name: vehicle-service
+    ports:
+      - "8081:8081"
+    depends_on:
+      - discovery-server
+      - db
+    environment:
+      - SPRING_APPLICATION_NAME=VEHICLE-SERVICE
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka
+      - EUREKA_INSTANCE_HOSTNAME=vehicle-service
+      - EUREKA_INSTANCE_PREFER_IP_ADDRESS=false
+
+  payment-service:
+    build: ./payment-service
+    container_name: payment-service
+    env_file:
+      - ./payment-service/.env
+    volumes:
+      - ./payment-service/.env:/app/.env
+    ports:
+      - "8083:8083"
+    depends_on:
+      - discovery-server
+      - db
+    environment:
+      - SPRING_APPLICATION_NAME=PAYMENT-SERVICE
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka
+      - EUREKA_INSTANCE_HOSTNAME=payment-service
+      - EUREKA_INSTANCE_PREFER_IP_ADDRESS=false
+
+  notification-service:
+    build: ./notification-service
+    container_name: notification-service
+    ports:
+      - "8085:8085"
+    depends_on:
+      - discovery-server
+      - db
+    environment:
+      - SPRING_APPLICATION_NAME=NOTIFICATION-SERVICE
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka
+      - EUREKA_INSTANCE_HOSTNAME=notification-service
+      - EUREKA_INSTANCE_PREFER_IP_ADDRESS=false
+
+volumes:
+  pgdata:

@@ -1,0 +1,109 @@
+version: "3.9"
+services:
+
+  db:
+    image: postgres:15
+    container_name: postgres-db
+    platform: linux/amd64
+    environment:
+      POSTGRES_DB: ticketing_service
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Uday@2003
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./backend-service/init-db-scripts:/docker-entrypoint-initdb.d
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis-cache
+    ports:
+      - "6379:6379"
+    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+
+  config-server:
+    build: ./backend-service/config-server
+    container_name: config-server
+    ports:
+      - "8886:8886"
+
+  discovery-server:
+    build: ./backend-service/discovery-server
+    container_name: discovery-server
+    ports:
+      - "8761:8761"
+    depends_on:
+      - config-server
+
+  api-gateway:
+    build: ./backend-service/api-gateway
+    container_name: api-gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - discovery-server
+
+  parking-lot-service:
+    build: ./backend-service/parking-lot-service
+    container_name: parking-lot-service
+    ports:
+      - "8084:8084"
+    depends_on:
+      - discovery-server
+      - db
+      - redis
+
+  ticketing-service:
+    build: ./backend-service/ticketing-service
+    container_name: ticketing-service
+    ports:
+      - "8082:8082"
+    depends_on:
+      - discovery-server
+      - db
+      - redis
+
+  vehicle-service:
+    build: ./backend-service/vehicle-service
+    container_name: vehicle-service
+    ports:
+      - "8081:8081"
+    depends_on:
+      - discovery-server
+      - db
+      - redis
+
+  payment-service:
+    build: ./backend-service/payment-service
+    container_name: payment-service
+    ports:
+      - "8083:8083"
+    depends_on:
+      - discovery-server
+      - db
+
+  notification-service:
+    build: ./backend-service/notification-service
+    container_name: notification-service
+    ports:
+      - "8085:8085"
+    depends_on:
+      - discovery-server
+      - db
+
+
+ # Frontend (React)
+  frontend-service:
+    build: ./frontend-service
+    container_name: frontend-service
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api-gateway
+
+volumes:
+  pgdata:
+  redis_data:

@@ -1,0 +1,41 @@
+<!-- save as payment.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Pay Parking Fee</title>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</head>
+<body>
+<button id="payBtn">Pay Rupees 100</button>
+
+<script>
+    document.getElementById('payBtn').onclick = async function () {
+        const res = await fetch('http://localhost:8083/api/payments/create', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ticketId: 123 }) // Replace 123 with actual ticketId
+        });
+
+        const data = await res.json();
+
+        const options = {
+            "key": "rzp_test_YourKeyHere", // Same as in backend
+            "amount": data.amount,
+            "currency": data.currency,
+            "name": "Parking Lot",
+            "description": "Parking Fee",
+            "order_id": data.orderId,
+            "handler": function (response) {
+                alert("Payment successful! ID: " + response.razorpay_payment_id);
+            },
+            "theme": {
+                "color": "#3399cc"
+            }
+        };
+
+        const rzp = new Razorpay(options);
+        rzp.open();
+    };
+</script>
+</body>
+</html>
